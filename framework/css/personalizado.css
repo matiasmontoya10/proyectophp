@@ -1,0 +1,25 @@
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.texto_justificado{
+    text-align: justify;
+}
+
+.fondo_main{
+    background-color: rgb(236, 240, 241  );
+}
+
+.borde_card_panel{
+    border:2px solid #00796b;  
+}
+
+.borde_tabla{
+    border:2px solid #000000;  
+}
