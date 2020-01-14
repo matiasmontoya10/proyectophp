@@ -19,6 +19,18 @@ class Welcome extends CI_Controller {
 
     //REGISTRAR CLIENTE
 
+    public function error_404() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
+            $this->load->view('paginas_administrador/header_administrador');
+            $this->load->view('paginas_generales/error_404');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            $this->load->view('paginas_generales/header');
+            $this->load->view('paginas_generales/error_404');
+            $this->load->view('paginas_generales/footer');
+        }
+    }
+
     public function registrar() {
         $this->load->view('paginas_generales/header');
         $this->load->view('paginas_generales/registrar');
@@ -69,6 +81,16 @@ class Welcome extends CI_Controller {
                 $this->session->set_userdata("administrador", $persona_sesion);
                 echo json_encode(array("mensaje" => "welcome/administrador"));
             }
+            if ($usuario[0]->id_perfil == 2) {
+                $this->session->set_userdata("despachador", $usuario);
+                $this->session->set_userdata("despachador", $persona_sesion);
+                echo json_encode(array("mensaje" => "welcome/despachador"));
+            }
+            if ($usuario[0]->id_perfil == 3) {
+                $this->session->set_userdata("cliente", $usuario);
+                $this->session->set_userdata("cliente", $persona_sesion);
+                echo json_encode(array("mensaje" => "welcome/cliente"));
+            }
         } else {
             echo json_encode(array("mensaje" => "0"));
         }
@@ -91,6 +113,26 @@ class Welcome extends CI_Controller {
 //    
     //INICIO PAGINA ADMINISTRATIVA
     //MODULO ADM USUARIO
+
+    public function cliente() {
+        if ($this->session->userdata("cliente")) {
+            $this->load->view('paginas_cliente_despachador/header_cliente');
+            $this->load->view('paginas_administrador/modulo_mensajeria');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function despachador() {
+        if ($this->session->userdata("despachador")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/modulo_mensajeria');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
 
     public function administrador() {
         if ($this->session->userdata("administrador")) {
@@ -229,6 +271,14 @@ class Welcome extends CI_Controller {
     }
 
     //EDITAR PANADERO Y REPARTIDOR
+    //EN LA SIGUIENTE FUNCION SE GESTIONA LA ACTUALIZACION DE UN TRABAJADOR (PANADERO U REPARTIDOR),
+    //DENTRO DE LOS CUALES EL CONTROLADOR RECIBE LOS DATOS Y LOS ENVIA POSTERIORMENTE AL MODELO.
+    //ESTA FUNCION SE REALIZARA SIEMPRE Y CUANDO UNA CUENTA ADMINISTRADOR ESTA CON LA SESION INICIADA,
+    //DE NO SER ASI SE REENVIA A LA PAGINA PRINCIPAL DENOMINADA index.php.
+    //CUANDO LA VARIABLE DIFERENCIADORA DENOMINADA $estado_trabajador, QUE INDICA EL ESTADO DE UN
+    //TRABAJADOR QUE PUEDE SER UN REPARTIDOR (1) O PANADERO (0), DETERMINA CUAL TRABAJADOR ES PARA
+    //POSTERIOMENTE MODIFICAR LOS DATOS. ESTO SE REALIZO CON EL OBJETIVO DE REDUCIR CODIGO
+    //EN ESTA PAGINA (CORRESPONDIENTE AL CONTROLADOR).
 
     public function controlador_editar_trabajador() {
         if ($this->session->userdata("administrador")) {
@@ -350,8 +400,18 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_select_patente_vehiculo() {
-        if ($this->session->userdata("administrador")) {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
             echo json_encode($this->modelo->modelo_select_patente_vehiculo());
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function modulo_vehiculo_despachador() {
+        if ($this->session->userdata("despachador")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/modulo_vehiculo');
+            $this->load->view('paginas_generales/footer');
         } else {
             redirect("welcome/index");
         }
@@ -368,7 +428,7 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_listado_vehiculo() {
-        if ($this->session->userdata('administrador')) {
+        if ($this->session->userdata('administrador') || $this->session->userdata("despachador")) {
             $draw = intval($this->input->get("draw"));
 
             $listado_vehiculo = $this->modelo->modelo_listado_vehiculo();
@@ -399,7 +459,7 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_insertar_vehiculo() {
-        if ($this->session->userdata("administrador")) {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
             $patente_vehiculo = $this->input->post("patente_vehiculo");
             $marca_vehiculo = $this->input->post("marca_vehiculo");
             $modelo_vehiculo = $this->input->post("modelo_vehiculo");
@@ -418,7 +478,7 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_editar_vehiculo() {
-        if ($this->session->userdata("administrador")) {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
             $patente_vehiculo = $this->input->post("patente_vehiculo");
             $fecha_revision_tecnica_vehiculo = $this->input->post("fecha_revision_tecnica_vehiculo");
             $estado_vehiculo = $this->input->post("estado_vehiculo");
@@ -431,7 +491,7 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_listado_repartidor_vehiculo() {
-        if ($this->session->userdata('administrador')) {
+        if ($this->session->userdata('administrador') || $this->session->userdata("despachador")) {
             $draw = intval($this->input->get("draw"));
 
             $listado_repartidor_vehiculo = $this->modelo->modelo_listado_repartidor_vehiculo();
@@ -463,7 +523,7 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_insertar_repartidor_vehiculo() {
-        if ($this->session->userdata("administrador")) {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
             $rut_persona = $this->input->post("rut_persona");
             $patente_vehiculo = $this->input->post("patente_vehiculo");
             $fecha_repartidor_vehiculo = date("Y-m-d H:i:s");
@@ -477,7 +537,7 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_eliminar_repartidor_vehiculo() {
-        if ($this->session->userdata("administrador")) {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
             $rut_persona = $this->input->post("rut_persona");
             $patente_vehiculo = $this->input->post("patente_vehiculo");
             $this->modelo->modelo_eliminar_repartidor_vehiculo($rut_persona, $patente_vehiculo);
@@ -488,6 +548,16 @@ class Welcome extends CI_Controller {
     }
 
 //ADM DE RUTA
+
+    public function modulo_ruta_despachador() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/modulo_ruta');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
 
     public function modulo_ruta() {
         if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
@@ -588,6 +658,16 @@ class Welcome extends CI_Controller {
 
     //MODULO ADMINISTRACION CONTABLE
 
+    public function modulo_contable_despachador() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/modulo_contable');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
     public function modulo_contable() {
         if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
             $this->load->view('paginas_administrador/header_administrador');
@@ -625,7 +705,7 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_listado_contabilidad() {
-        if ($this->session->userdata('administrador')) {
+        if ($this->session->userdata('administrador') || $this->session->userdata("despachador")) {
             $draw = intval($this->input->get("draw"));
 
             $listado_contabilidad = $this->modelo->modelo_listado_contabilidad();
@@ -698,7 +778,71 @@ class Welcome extends CI_Controller {
         }
     }
 
+    public function controlador_listado_ingresos_mes() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $draw = intval($this->input->get("draw"));
+
+            $listado_mes = $this->modelo->modelo_listado_ingresos_mes();
+            $data = array();
+
+            foreach ($listado_mes->result() as $lista) {
+
+                $data[] = array(
+                    $lista->mes,
+                    $lista->total_ingresos,
+                );
+            }
+            $output = array(
+                "draw" => $draw,
+                "recordsTotal" => $listado_mes->num_rows(),
+                "recordsFiltered" => $listado_mes->num_rows(),
+                "data" => $data
+            );
+            echo json_encode($output);
+            exit();
+        } else {
+            redirect('welcome/index');
+        }
+    }
+
+    public function controlador_listado_egresos_mes() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $draw = intval($this->input->get("draw"));
+
+            $listado_mes = $this->modelo->modelo_listado_egresos_mes();
+            $data = array();
+
+            foreach ($listado_mes->result() as $lista) {
+
+                $data[] = array(
+                    $lista->mes,
+                    $lista->total_ingresos,
+                );
+            }
+            $output = array(
+                "draw" => $draw,
+                "recordsTotal" => $listado_mes->num_rows(),
+                "recordsFiltered" => $listado_mes->num_rows(),
+                "data" => $data
+            );
+            echo json_encode($output);
+            exit();
+        } else {
+            redirect('welcome/index');
+        }
+    }
+
     //ADM DE INSUMOS
+
+    public function modulo_insumo_despachador() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/modulo_insumo');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
 
     public function modulo_insumo() {
         if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
@@ -782,6 +926,16 @@ class Welcome extends CI_Controller {
         }
     }
 
+    public function modulo_cliente_despachador() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/modulo_cliente');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
     public function modulo_cliente() {
         if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
             $this->load->view('paginas_administrador/header_administrador');
@@ -793,7 +947,7 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_listado_cliente() {
-        if ($this->session->userdata('administrador')) {
+        if ($this->session->userdata('administrador') || $this->session->userdata('despachador')) {
             $draw = intval($this->input->get("draw"));
 
             $listado_cliente = $this->modelo->modelo_listado_cliente();
@@ -825,6 +979,26 @@ class Welcome extends CI_Controller {
         }
     }
 
+    public function modulo_mensajeria_despachador() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/modulo_mensajeria');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function modulo_mensajeria_cliente() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
+            $this->load->view('paginas_cliente_despachador/header_cliente');
+            $this->load->view('paginas_administrador/modulo_mensajeria');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
     public function modulo_mensajeria() {
         if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
             $this->load->view('paginas_administrador/header_administrador');
@@ -838,9 +1012,18 @@ class Welcome extends CI_Controller {
     //MENSAJERIA
 
     public function controlador_select_usuario() {
-        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("despachador")) {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
             $rut_usuario = $this->input->post("rut_usuario");
             echo json_encode($this->modelo->modelo_select_usuario($rut_usuario));
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function controlador_comentario_mensaje() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
+            $id_mensaje = $this->input->post("id_mensaje");
+            echo json_encode($this->modelo->modelo_comentario_mensaje($id_mensaje));
         } else {
             redirect("welcome/index");
         }
@@ -862,7 +1045,7 @@ class Welcome extends CI_Controller {
     }
 
     public function controlador_listado_mensaje_entrada() {
-        if ($this->session->userdata('administrador')) {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
             $draw = intval($this->input->get("draw"));
             $rut_usuario = $this->input->post("rut_usuario");
             $listado_mensaje_entrada = $this->modelo->modelo_listado_mensaje_entrada($rut_usuario);
@@ -877,8 +1060,7 @@ class Welcome extends CI_Controller {
                     $lista->receptor_nombre_completo,
                     $lista->titulo_mensaje,
                     $lista->descripcion_mensaje,
-                    $lista->fecha_mensaje,
-                    $lista->estado_mensaje,
+                    $lista->fecha_mensaje
                 );
             }
             $output = array(
@@ -894,8 +1076,18 @@ class Welcome extends CI_Controller {
         }
     }
 
+    public function controlador_eliminar_mensaje() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
+            $id_mensaje = $this->input->post("id_mensaje");
+            $this->modelo->modelo_eliminar_mensaje($id_mensaje);
+            echo json_encode(array("mensaje" => "MENSAJE ELIMINADO CON ÉXITO"));
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
     public function controlador_listado_mensaje_salida() {
-        if ($this->session->userdata('administrador')) {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
             $draw = intval($this->input->get("draw"));
             $rut_usuario = $this->input->post("rut_usuario");
             $listado_mensaje_salida = $this->modelo->modelo_listado_mensaje_salida($rut_usuario);
@@ -910,8 +1102,7 @@ class Welcome extends CI_Controller {
                     $lista->receptor_nombre_completo,
                     $lista->titulo_mensaje,
                     $lista->descripcion_mensaje,
-                    $lista->fecha_mensaje,
-                    $lista->estado_mensaje,
+                    $lista->fecha_mensaje
                 );
             }
             $output = array(
@@ -927,11 +1118,235 @@ class Welcome extends CI_Controller {
         }
     }
 
+    //ADM DE SENSOR
+
+    public function modulo_sensor_despachador() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/modulo_sensor');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
     public function modulo_sensor() {
         if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
             $this->load->view('paginas_administrador/header_administrador');
             $this->load->view('paginas_administrador/modulo_sensor');
             $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function controlador_listado_sensor() {
+        if ($this->session->userdata('administrador') || $this->session->userdata("despachador")) {
+            $draw = intval($this->input->get("draw"));
+
+            $listado_sensor = $this->modelo->modelo_listado_sensor();
+            $data = array();
+
+            foreach ($listado_sensor->result() as $lista) {
+
+                $data[] = array(
+                    $lista->id_sensor,
+                    $lista->temperatura_sensor,
+                    $lista->humedad_sensor,
+                    $lista->fecha_sensor,
+                    $lista->rut_usuario,
+                    $lista->nombre_apellido_persona,
+                );
+            }
+            $output = array(
+                "draw" => $draw,
+                "recordsTotal" => $listado_sensor->num_rows(),
+                "recordsFiltered" => $listado_sensor->num_rows(),
+                "data" => $data
+            );
+            echo json_encode($output);
+            exit();
+        } else {
+            redirect('welcome/index');
+        }
+    }
+
+    public function controlador_insertar_sensor() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $rut_usuario = $this->input->post("rut_usuario");
+            $temperatura_sensor = $this->input->post("temperatura_sensor");
+            $humedad_sensor = $this->input->post("humedad_sensor");
+            $fecha_sensor = date("Y-m-d H:i:s");
+            $this->modelo->modelo_insertar_sensor($rut_usuario, $temperatura_sensor, $humedad_sensor, $fecha_sensor);
+            echo json_encode(array("mensaje" => "REPORTE DE SENSOR REALIZADO CON EXITO"));
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    //ADM CAMBIAR CONTRASEÑA
+
+    public function cambiar_contrasena() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
+            $this->load->view('paginas_administrador/header_administrador');
+            $this->load->view('paginas_administrador/cambiar_contrasena');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function cambiar_contrasena_cliente() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
+            $this->load->view('paginas_cliente_despachador/header_cliente');
+            $this->load->view('paginas_administrador/cambiar_contrasena');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function cambiar_contrasena_despachador() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/cambiar_contrasena');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function controlador_cambiar_clave() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador") || $this->session->userdata("cliente")) {
+            $rut_usuario = $this->input->post("rut_usuario");
+            $clave_usuario = $this->input->post("clave_usuario");
+
+            $this->modelo->modelo_cambiar_clave($rut_usuario, $clave_usuario);
+
+            echo json_encode(array("mensaje" => "CLAVE CAMBIADA CON ÉXITO"));
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    //MODULO PEDIDO
+
+    public function modulo_pedido_administrador() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $this->load->view('paginas_administrador/header_administrador');
+            $this->load->view('paginas_administrador/modulo_pedido');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function modulo_pedido_despachador() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $this->load->view('paginas_cliente_despachador/header_despachador');
+            $this->load->view('paginas_administrador/modulo_pedido');
+            $this->load->view('paginas_generales/footer');
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function controlador_listado_pedido() {
+        if ($this->session->userdata('administrador') || $this->session->userdata("despachador")) {
+            $draw = intval($this->input->get("draw"));
+
+            $listado_pedido = $this->modelo->modelo_listado_pedido();
+            $data = array();
+
+            foreach ($listado_pedido->result() as $lista) {
+
+                $data[] = array(
+                    $lista->id_pedido,
+                    $lista->tipo_producto,
+                    $lista->cantidad_pedido,
+                    $lista->precio_cliente_pedido,
+                    $lista->total_pedido,
+                    $lista->rut_persona,
+                    $lista->nombre_apellido,
+                    $lista->direccion_persona,
+//                    $lista->id_caf,
+//                    $lista->id_folio,
+                    $lista->id_factura,
+                );
+            }
+            $output = array(
+                "draw" => $draw,
+                "recordsTotal" => $listado_pedido->num_rows(),
+                "recordsFiltered" => $listado_pedido->num_rows(),
+                "data" => $data
+            );
+            echo json_encode($output);
+            exit();
+        } else {
+            redirect('welcome/index');
+        }
+    }
+
+    // GENERAR FACTURA
+    //    $rut_usuario_pdf = $this->input->post("rut_usuario");
+    //    $id_pedido_pdf = $this->input->post("id_pedido");
+    //    $id_factura_pdf = $this->input->post("id_factura");
+
+    public function controlador_generar_factura() {
+        $rut_usuario_pdf = $this->input->post("rut_usuario");
+        $id_pedido_pdf = $this->input->post("id_pedido");
+        $id_factura_pdf = $this->input->post("id_factura");
+
+        $data['0'] = $rut_usuario_pdf;
+        $data['1'] = $id_pedido_pdf;
+        $data['2'] = $id_factura_pdf;
+
+        $this->session->set_flashdata('data', $data);
+
+
+//        $this->session->set_flashdata('rut_usuario_pdf', $rut_usuario_pdf);
+//        $this->session->set_flashdata('id_pedido_pdf', $id_pedido_pdf);
+//        $this->session->set_flashdata('id_factura_pdf', $id_factura_pdf);
+    }
+
+    public function vista_generar_factura() {
+        $this->load->view('paginas_administrador/pdf');
+    }
+
+    public function controlador_select_usuario_cliente() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            echo json_encode($this->modelo->modelo_select_usuario_cliente());
+        } else {
+            redirect("welcome/index");
+        }
+    }
+
+    public function controlador_insertar_pedido_factura() {
+        if ($this->session->userdata("administrador") || $this->session->userdata("despachador")) {
+            $rut_usuario = $this->input->post("rut_usuario");
+            $fecha_pedido = date("Y-m-d H:i:s");
+            $this->modelo->modelo_insertar_pedido($rut_usuario, $fecha_pedido);
+            //
+            $id_pedido = $this->db->insert_id();
+            $tipo_pan = $this->input->post("tipo_pan");
+            $cantidad_pan_pedido = $this->input->post("cantidad_pan_pedido");
+            $total_pedido = $this->input->post("total_pedido");
+            $precio_unitario_pedido = $this->input->post("precio_unitario_pedido");
+            $grupo = $this->input->post("grupo");
+            $id_factura_asincrono = $this->input->post("id_factura_asincrono");
+            $this->modelo->modelo_insertar_producto_pedido($tipo_pan, $id_pedido, $cantidad_pan_pedido, $total_pedido, $precio_unitario_pedido);
+            //
+            if ($grupo == 0) {
+                $this->modelo->modelo_insertar_factura($fecha_pedido);
+                $id_factura = $this->db->insert_id();
+                $this->modelo->modelo_insertar_pedido_factura($id_pedido, $id_factura);
+                echo json_encode(array("mensaje" => "PEDIDO REALIZADO CON EXITO. N°: " . $id_pedido,
+                    "variable_id_pedido" => $id_factura));
+            } else {
+                $this->modelo->modelo_insertar_pedido_factura_nuevo($id_pedido, $id_factura_asincrono);
+                echo json_encode(array("mensaje" => "PEDIDO REALIZADO CON EXITO. N°: " . $id_pedido,
+                    "variable_id_pedido" => $id_factura_asincrono));
+            }
         } else {
             redirect("welcome/index");
         }

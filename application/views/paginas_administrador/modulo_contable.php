@@ -23,7 +23,7 @@
                     <label>ACTIVO PASIVO DETALLE:</label>
                 </div>
                 <div class="input-field">
-                    <input id="neto_contabilidad" type="text" class="validate iva_total" maxlength="7" required="true" pattern="[0-9]+" onkeyup="sumar();">
+                    <input id="neto_contabilidad" type="text" class="validate iva_total validar_numero" maxlength="7" required="true" pattern="[0-9]+" onkeyup="sumar();">
                     <label for="neto_contabilidad">NETO:</label>
                 </div>
                 <div class="input-field">
@@ -36,7 +36,7 @@
                 </div>
                 <div class="input-field center-align">
                     <button id="boton_agregar_contabilidad" type="submit" class="waves-effect waves-light btn-floating teal darken-2 pulse">
-                        <i class="material-icons">account_circle</i>
+                        <i class="material-icons">add</i>
                     </button>
                 </div>
             </div>
@@ -46,7 +46,7 @@
     <div class="container">
         <br>
         <div class="row">
-            <div class="col s12 m11 l11 offset-m1 offset-l1">
+            <div class="col s12 m12 l12">
                 <div class="card-panel borde_card_panel">
                     <h5 class="center"><b>ADMINISTRACIÓN CONTABLE</b></h5>
                     <div class="input-field">
@@ -54,13 +54,56 @@
                         <label for="total_general">TOTAL GENERAL:</label>
                     </div>
                     <div class="input-field">
-                        <input id="total_ingresos" type="text" readonly="true" class="center green-text darken-1" style="font-weight: bold">
+                        <input id="total_ingresos" type="text" readonly="true" class="center green-text darken-1" placeholder="" style="font-weight: bold">
                         <label for="total_ingresos">INGRESOS ACUMULADOS:</label>
                     </div>
                     <div class="input-field">
-                        <input id="total_egresos" type="text" readonly="true"  class="center red-text darken-1" style="font-weight: bold">
+                        <input id="total_egresos" type="text" readonly="true"  class="center red-text darken-1" placeholder="" style="font-weight: bold">
                         <label for="total_egresos">EGRESOS ACUMULADOS:</label>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m12 l6">
+                <div class="card-panel borde_card_panel">
+                    <br>
+                    <h5 class="center"><b>INGRESOS POR MES</b></h5>
+                    <table id="tabla_listado_ingresos_mes" class="centered bordered highlight nowrap cell-border table-striped" style="text-transform:uppercase">
+                        <thead class="teal darken-2 white-text">
+                            <tr>
+                                <th>MESES DE AUDITORÍA</th>
+                                <th>INGRESOS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col s12 m12 l6">
+                <div class="card-panel borde_card_panel">
+                    <br>
+                    <h5 class="center"><b>EGRESOS POR MES</b></h5>
+                    <table id="tabla_listado_egresos_mes" class="centered bordered highlight nowrap cell-border table-striped" style="text-transform:uppercase">
+                        <thead class="teal darken-2 white-text">
+                            <tr>
+                                <th>MESES DE AUDITORÍA</th>
+                                <th>EGRESOS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="card-panel borde_card_panel">
+                    <h5 class="center"><b>CONTABILIDAD HÍSTORICA</b></h5>
                     <table id="tabla_listado_contabilidad" class="centered bordered highlight nowrap cell-border table-striped">
                         <thead class="teal darken-2 white-text">
                             <tr>
@@ -80,7 +123,6 @@
 
                         </tbody>
                     </table>
-                    <br>
                     <button class="btn waves-effect waves-light teal darken-2 right modal-trigger" type="submit" name="action" href="#modal_agregar_contabilidad">
                         <b>AGREGAR</b>
                     </button>
@@ -91,6 +133,92 @@
     </div>
 </main>
 <script type="text/javascript">
+
+    $('table.display').DataTable();
+
+    $('#tabla_listado_egresos_mes').DataTable({
+        scrollX: false,
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"
+        },
+        "ajax": {
+            url: base_url + "listado_egresos_mes",
+            type: 'post'
+        },
+        "iDisplayLength": 3,
+        "bJQueryUI": false,
+        "dom": 'Bfrtip',
+        "buttons": [
+            {
+                title: 'Santa Ana S.A - Egresos mensuales',
+                messageTop: 'Desarrollado por Matías Montoya P.',
+                filename: 'proyecto_php',
+                extend: 'pdfHtml5',
+                download: 'open',
+                pageSize: 'letter',
+                orientation: 'vertical',
+                exportOptions: {
+                    columns: [0, 1]
+                },
+                customize: function (doc) {
+                    doc.styles.tableBodyEven.alignment = 'center';
+                    doc.styles.tableBodyOdd.alignment = 'center';
+                    doc.content[2].margin = [175, 0, 175, 0];
+                }
+            }
+        ],
+        "order": [[0, "asc"]],
+        "columnDefs": [
+            {targets: [1], "render": function (data, type, row, meta) {
+                    return '$' + data;
+                }
+            }
+        ]
+    });
+
+    $('#tabla_listado_ingresos_mes').DataTable({
+        scrollX: false,
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"
+        },
+        "ajax": {
+            url: base_url + "listado_ingresos_mes",
+            type: 'post'
+        },
+        "iDisplayLength": 3,
+        "bJQueryUI": false,
+        "dom": 'Bfrtip',
+        "buttons": [
+            {
+                title: 'Santa Ana S.A - Ingresos mensuales',
+                messageTop: 'Desarrollado por Matías Montoya P.',
+                filename: 'proyecto_php',
+                extend: 'pdfHtml5',
+                download: 'open',
+                pageSize: 'letter',
+                orientation: 'vertical',
+                exportOptions: {
+                    columns: [0, 1]
+                },
+                customize: function (doc) {
+                    doc.styles.tableBodyEven.alignment = 'center';
+                    doc.styles.tableBodyOdd.alignment = 'center';
+                    doc.content[2].margin = [175, 0, 175, 0];
+                }
+            }
+        ],
+        "order": [[0, "asc"]],
+        "columnDefs": [
+            {targets: [1], "render": function (data, type, row, meta) {
+                    return '$' + data;
+                }
+            }
+        ]
+    });
+
+    $('.validar_numero').on('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
 
     total_ingresos();
     total_egresos();
@@ -281,7 +409,7 @@
         var iva_contabilidad = $("#iva_contabilidad").val();
         var total_contabilidad = $("#total_contabilidad").val();
 
-        if (activo_pasivo == "" || activo_pasivo_categoria == "" || activo_pasivo_detalle == "" || neto_contabilidad == "" || iva_contabilidad == "" || total_contabilidad == "") {
+        if (activo_pasivo == null || activo_pasivo_categoria == null || activo_pasivo_detalle == null || neto_contabilidad == "" || iva_contabilidad == "" || total_contabilidad == "") {
             Materialize.toast("COMPLETE CAMPO(S) VACIO(S).", 3000);
         } else {
             $.ajax({
@@ -296,6 +424,8 @@
                     } else {
                         Materialize.toast(resultado.mensaje, "3000");
                         $("#tabla_listado_contabilidad").DataTable().ajax.reload();
+                        $("#tabla_listado_ingresos_mes").DataTable().ajax.reload();
+                        $("#tabla_listado_egresos_mes").DataTable().ajax.reload();
                         $("#modal_agregar_contabilidad").modal('close');
                         total_general();
                         total_ingresos();

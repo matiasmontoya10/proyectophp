@@ -3,7 +3,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 $route['default_controller'] = 'welcome';
-$route['404_override'] = '';
+$route['404_override'] = 'welcome/error_404';
 $route['translate_uri_dashes'] = FALSE;
 
 //INICIO DE SESION
@@ -53,6 +53,8 @@ $route['insertar_contabilidad'] = 'welcome/controlador_insertar_contabilidad';
 $route['total_general'] = 'welcome/controlador_total_general';
 $route['total_ingresos'] = 'welcome/controlador_total_ingresos';
 $route['total_egresos'] = 'welcome/controlador_total_egresos';
+$route['listado_ingresos_mes'] = 'welcome/controlador_listado_ingresos_mes';
+$route['listado_egresos_mes'] = 'welcome/controlador_listado_egresos_mes';
 
 //ADMINISTRACION DE INSUMO
 $route['select_lista_insumo'] = 'welcome/controlador_select_lista_insumo';
@@ -68,7 +70,23 @@ $route['select_usuario'] = 'welcome/controlador_select_usuario';
 $route['insertar_mensaje'] = 'welcome/controlador_insertar_mensaje';
 $route['listado_mensaje_entrada'] = 'welcome/controlador_listado_mensaje_entrada';
 $route['listado_mensaje_salida'] = 'welcome/controlador_listado_mensaje_salida';
+$route['comentario_mensaje'] = 'welcome/controlador_comentario_mensaje';
+$route['eliminar_mensaje'] = 'welcome/controlador_eliminar_mensaje';
 
+//SENSORES
+$route['listado_sensor'] = 'welcome/controlador_listado_sensor';
+$route['insertar_sensor'] = 'welcome/controlador_insertar_sensor';
+
+//CLAVE
+$route['cambiar_clave'] = 'welcome/controlador_cambiar_clave';
+
+//PEDIDO
+$route['listado_pedido'] = 'welcome/controlador_listado_pedido';
+
+//GENERAR PDF
+$route['generar_factura'] = 'welcome/controlador_generar_factura';
+$route['select_usuario_cliente'] = 'welcome/controlador_select_usuario_cliente';
+$route['insertar_pedido_factura'] = 'welcome/controlador_insertar_pedido_factura';
 
 
 

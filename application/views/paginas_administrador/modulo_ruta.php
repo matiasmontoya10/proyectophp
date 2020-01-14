@@ -68,7 +68,7 @@
     <div class="container">
         <br>
         <div class="row">
-            <div class="col s12 m8 l8 offset-m2 offset-l2">
+            <div class="col s12 m10 l10 offset-m1 offset-l1">
                 <div class="card-panel borde_card_panel">
                     <h5 class="center"><b>ADMINISTRACIÓN DE RUTAS</b></h5>
                     <table id="tabla_listado_ruta" class="centered bordered highlight nowrap cell-border table-striped">
@@ -139,7 +139,7 @@
             url: base_url + "listado_ruta",
             type: 'post'
         },
-        "iDisplayLength": 10,
+        "iDisplayLength": 3,
         "bJQueryUI": false,
         "dom": 'Bfrtip',
         "buttons": [

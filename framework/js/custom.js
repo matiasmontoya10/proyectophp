@@ -1,4 +1,16 @@
 $(document).ready(function () {
+    //VALIDACION DE CORREO
+
+    function validar_correo(correo) {
+
+        var validacion = /[\w-\.]{2,}@([\w-]{2,}\.)*([\w-]{2,}\.)[\w-]{2,4}/;
+
+        if (validacion.test(correo)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     //JavaScript Materialize. Desarrollado por Matías Montoya.
     $(".button-collapse").sideNav();
@@ -36,20 +48,25 @@ $(document).ready(function () {
     //Funciones de la plataforma web.
     var base_url = "http://localhost/proyecto_php/";
 
-    //Valida el rut con su cadena completa "XXXXXXXX-X".
+    //_FUNCION QUE VALIDA UN RUT CON SU CADENA COMPLETA EJ: "19576832-2".
     var Fn = {
-        validaRut: function (rutCompleto) {
-            rutCompleto = rutCompleto.replace("‐", "-");
-            if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(rutCompleto))
+        validaRut: function (rut_completo) {
+            //RECIBE UN RUT Y REEMPLAZA LOS CARACTERES.
+            rut_completo = rut_completo.replace("‐", "-");
+            //DETERMINA LA CODIFICACION DE QUE SI EL RUT QUE RECIBE NO ES VALIDO
+            //, YA QUE TIENE UN SIGNO DE EXCLAMACION.
+            if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(rut_completo))
                 return false;
-            var tmp = rutCompleto.split('-');
+            var tmp = rut_completo.split('-');
             var digv = tmp[1];
             var rut = tmp[0];
             if (digv == 'K')
                 digv = 'k';
-
+            //RETORNA UN RUT VALIDO.
             return (Fn.dv(rut) == digv);
+
         },
+        //CODIFICACION QUE CALCULA EL DIGITO VERFICACADOR CONVIRTIENDO LA LETRA "K" EN 1.
         dv: function (T) {
             var M = 0, S = 1;
             for (; T; T = Math.floor(T / 10))
@@ -59,26 +76,29 @@ $(document).ready(function () {
     };
 
     $("#boton_iniciar_sesion").click(function (excepcion) {
-
+        //CAPTURAR LOS DATOS DE LA PAGINA INICIAR SESION
         excepcion.preventDefault();
-
         var rut_usuario = $("#rut_usuario").val();
         var clave_usuario = $("#clave_usuario").val();
-
+        //VALIDACION DE CAMPOS VACIOS
         if (rut_usuario == "" || clave_usuario == "") {
             Materialize.toast("COMPLETE CAMPO(S) VACIO(S).", 3000);
         } else {
+            //DETERMINA SI EL RUT ES CORRECTO MEDIANTE LA FUNCION DE VALIDACION DE RUT
             if (Fn.validaRut(rut_usuario)) {
                 $.ajax({
                     url: base_url + 'iniciar_sesion',
                     type: 'post',
                     dataType: 'json',
+                    //ENVIA LOS DATOS AL CONTROLADOR
                     data: {rut_usuario: rut_usuario, clave_usuario: clave_usuario},
                     success: function (resultado) {
                         if (resultado.mensaje === "0") {
                             Materialize.toast("CREDENCIAL INCORRECTA / INACTIVA.", "3000");
                         } else {
                             Materialize.toast("BIENVENIDO.", "3000");
+                            //CREACION DE SESION Y REDIRECCION AL MENU PRINCIPAL DE LA PAGINA DEL USUARIO (ADMINISTRADOR,
+                            //DESPACHADOR O CLIENTE.
                             window.location.href = base_url + resultado.mensaje;
                         }
                     },
@@ -103,7 +123,7 @@ $(document).ready(function () {
         var telefono_persona = $("#telefono_persona").val();
         var correo_persona = $("#correo_persona").val();
         var direccion_persona = $("#direccion_persona").val();
-        var id_perfil = 3;
+        var id_perfil = $("#id_perfil").val();
 
         if (rut_usuario == "" || clave_usuario == "" || clave_usuario_repetir == "" ||
                 nombre_persona == "" || apellido_persona == "" || telefono_persona == "" || correo_persona == "" || direccion_persona == "") {
@@ -112,25 +132,38 @@ $(document).ready(function () {
             if (Fn.validaRut(rut_usuario)) {
                 if (clave_usuario === clave_usuario_repetir) {
                     if (clave_usuario.length >= 8) {
-                        $.ajax({
-                            url: base_url + 'insertar_persona',
-                            type: 'post',
-                            dataType: 'json',
-                            data: {rut_usuario: rut_usuario, clave_usuario: clave_usuario, nombre_persona: nombre_persona,
-                                apellido_persona: apellido_persona, telefono_persona: telefono_persona, correo_persona: correo_persona,
-                                direccion_persona: direccion_persona, id_perfil: id_perfil},
-                            success: function (resultado) {
-                                if (resultado.mensaje === "0") {
-                                    Materialize.toast(resultado.mensaje, "3000");
-                                } else {
-                                    Materialize.toast(resultado.mensaje, "3000");
-                                    //window.location.href = base_url + resultado.mensaje;
+                        if (validar_correo(correo_persona)) {
+                            $.ajax({
+                                url: base_url + 'insertar_persona',
+                                type: 'post',
+                                dataType: 'json',
+                                data: {rut_usuario: rut_usuario, clave_usuario: clave_usuario, nombre_persona: nombre_persona,
+                                    apellido_persona: apellido_persona, telefono_persona: telefono_persona, correo_persona: correo_persona,
+                                    direccion_persona: direccion_persona, id_perfil: id_perfil},
+                                success: function (resultado) {
+                                    if (resultado.mensaje === "0") {
+                                        Materialize.toast(resultado.mensaje, "3000");
+                                    } else {
+                                        $("#rut_usuario").val("");
+                                        $("#clave_usuario").val("");
+                                        $("#clave_usuario_repetir").val("");
+                                        $("#nombre_persona").val("");
+                                        $("#apellido_persona").val("");
+                                        $("#telefono_persona").val("");
+                                        $("#correo_persona").val("");
+                                        $("#direccion_persona").val("");
+                                        Materialize.toast(resultado.mensaje, "3000");
+                                        $("#modal_agregar_usuario").modal('close');
+                                        $("#tabla_listado_usuario").DataTable().ajax.reload();
+                                    }
+                                },
+                                error: function () {
+                                    Materialize.toast("ERROR 500", "3000");
                                 }
-                            },
-                            error: function () {
-                                Materialize.toast("ERROR 500", "3000");
-                            }
-                        });
+                            });
+                        } else {
+                            Materialize.toast("CORREO NO VALIDO", "3000");
+                        }
                     } else {
                         Materialize.toast("LA CONTRASEÑA DEBE SER MAYOR O IGUAL A 8 CARACTERES", "3000");
                     }

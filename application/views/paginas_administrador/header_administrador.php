@@ -3,6 +3,7 @@
 $usuario = $this->session->userdata("administrador");
 $persona_sesion = $this->session->userdata("administrador");
 $rut_usuario = $usuario[0]->rut_usuario;
+$clave_usuario = $usuario[0]->clave_usuario;
 ?>
 <!DOCTYPE html>
 <html>
@@ -29,10 +30,13 @@ $rut_usuario = $usuario[0]->rut_usuario;
         <script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
         <script type="text/javascript"  src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
         <script type="text/javascript"  src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+        <!--ALERT-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
 
         <script>
             var base_url = "http://localhost/proyecto_php/";
             var rut_usuario_php = '<?php echo $rut_usuario ?>';
+            var clave_usuario_php = '<?php echo $clave_usuario ?>';
         </script>
     </head>
     <body>
@@ -41,7 +45,8 @@ $rut_usuario = $usuario[0]->rut_usuario;
                 <div class="nav-wrapper teal darken-2">
                     <a href="#" data-activates="slide-out" class="button-collapse show-on-large"><i class="material-icons">menu</i></a>
                     <ul id="nav-mobile" class="right hide-on-med-and-down">
-                        <li><a href="<?php echo base_url(); ?>welcome/cerrar_sesion">CERRAR SESIÓN</a></li>
+                        <li><a href="<?php echo base_url(); ?>welcome/cambiar_contrasena">Cambiar Contraseña</a></li>
+                        <li><a href="<?php echo base_url(); ?>welcome/cerrar_sesion">Cerrar Sesión</a></li>
                     </ul>
 
                     <ul id="slide-out" class="side-nav fondo_main">
@@ -64,11 +69,12 @@ $rut_usuario = $usuario[0]->rut_usuario;
                         <li><a href="<?php echo base_url(); ?>welcome/modulo_vehiculo" class="center black-text">Administración de Vehículos</a></li>
                         <li><a href="<?php echo base_url(); ?>welcome/modulo_ruta" class="center black-text">Administración de Rutas</a></li>
                         <li><a href="<?php echo base_url(); ?>welcome/modulo_contable" class="center black-text">Administración Contable</a></li>
+                        <li><a href="<?php echo base_url(); ?>welcome/modulo_pedido_administrador" class="center black-text">Administración de Pedidos</a></li>
                         <li><a href="<?php echo base_url(); ?>welcome/modulo_insumo" class="center black-text">Administración de Insumos</a></li>
-                        <li><a href="<?php echo base_url(); ?>welcome/modulo_cliente" class="center black-text">Cartera de clientes - Despachador</a></li>
                         <li><a href="<?php echo base_url(); ?>welcome/modulo_mensajeria" class="center black-text">Mensajería</a></li>
                         <li><a href="<?php echo base_url(); ?>welcome/modulo_sensor" class="center black-text">Temperatura & Humedad</a></li>
-                        <li><a href="<?php echo base_url(); ?>welcome/modulo_gps" class="center black-text">GPS</a></li>
+                        <li><a href="<?php echo base_url(); ?>welcome/cambiar_contrasena" class="center black-text">Cambiar Contraseña</a></li>
+                        <li><a href="<?php echo base_url(); ?>welcome/cerrar_sesion" class="center black-text">Cerrar Sesión</a></li>
                     </ul>
                 </div>
             </nav>

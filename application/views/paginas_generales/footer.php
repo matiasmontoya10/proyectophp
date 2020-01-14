@@ -11,9 +11,9 @@
             <div class="col l4 m12 s12">
                 <h5 class="white-text center"><b>ACERCA DE NOSOTROS</b></h5>
                 <ul class="center">
-                    <li><p><i class="tiny material-icons">home</i> 12 Oriente #469</p></li>
+                    <li><p><i class="tiny material-icons">home</i> 6 Oriente #1347</p></li>
                     <li><p><i class="tiny material-icons">phone</i> +56 9 8300 6194</p></li>
-                    <li><p><i class="tiny material-icons">mail</i> matias.montoya.poblete@gmail.com</p></li>
+                    <li><p><i class="tiny material-icons">mail</i> nuestropandecadadia@gmail.com</p></li>
                 </ul>
             </div>
             <div class="col l4 m12 s12">

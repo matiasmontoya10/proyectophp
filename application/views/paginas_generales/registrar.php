@@ -2,9 +2,9 @@
     <br>
     <div class="container">
         <div class="row">
-            <div class="col s12 m8 offset-m2 l6 offset-l3">
+            <div class="col s12 m8 offset-m2 l8 offset-l2">
                 <div class="card-panel borde_card_panel grey lighten-5">
-                    <h5 class="center-align black-text"><b>REGISTRAR</b></h5>
+                    <h5 class="center-align black-text"><b>INGRESA TUS DATOS PARA EL REGISTRO</b></h5>
                     <div class="input-field">
                         <i class="material-icons prefix">create</i>
                         <input id="rut_usuario" type="text" class="validate" placeholder="19390359-2" maxlength="15">
@@ -32,7 +32,7 @@
                     </div>
                     <div class="input-field">
                         <i class="material-icons prefix">phone</i>
-                        <input id="telefono_persona" type="text" class="validate" placeholder="983006194" maxlength="9" required="true" pattern="[0-9]+">
+                        <input id="telefono_persona" type="text" class="validate validar_numero" placeholder="983006194" maxlength="9" required="true" pattern="[0-9]+">
                         <label for="telefono_persona">TELEFÓNO:</label>
                     </div>
                     <div class="input-field">
@@ -45,6 +45,7 @@
                         <input id="direccion_persona" type="text" class="validate" placeholder="28 Oriente, 7 Sur #678" maxlength="45">
                         <label for="direccion_persona">DOMICILIO:</label>
                     </div>
+                    <input type="hidden" id="id_perfil" value="3"/>
                     <div class="input-field center-align">
                         <button id="boton_registrar" type="submit" class="waves-effect waves-light btn-floating teal darken-2 pulse">
                             <i class="material-icons">account_circle</i>
@@ -55,3 +56,8 @@
         </div>
     </div>
 </main>
+<script type="text/javascript">
+    $('.validar_numero').on('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+</script>

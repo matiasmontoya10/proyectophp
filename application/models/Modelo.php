@@ -2,6 +2,11 @@
 
 class Modelo extends CI_Model {
 
+    public function __construct() {
+        parent::__construct();
+        $this->db->query("SET lc_time_names = 'es_CL'");
+    }
+
     //FUNCIONES NO ADMINISTRATIVAS
 
     public function modelo_iniciar_sesion($rut_usuario, $clave_usuario) {
@@ -333,6 +338,28 @@ class Modelo extends CI_Model {
         return $this->db->get()->result();
     }
 
+    public function modelo_listado_ingresos_mes() {
+        $this->db->select("monthname(fecha_contabilidad) as mes, sum(contabilidad.total_contabilidad) as total_ingresos");
+        $this->db->from("contabilidad");
+        $this->db->join("activo_pasivo_detalle", "contabilidad.id_activo_pasivo_detalle = activo_pasivo_detalle.id_activo_pasivo_detalle");
+        $this->db->join("activo_pasivo_categoria", "activo_pasivo_categoria.id_activo_pasivo_categoria = activo_pasivo_detalle.id_activo_pasivo_categoria");
+        $this->db->join("activo_pasivo", "activo_pasivo_categoria.id_activo_pasivo = activo_pasivo.id_activo_pasivo");
+        $this->db->where("activo_pasivo.id_activo_pasivo", "1");
+        $this->db->group_by('MONTH(fecha_contabilidad)');
+        return $this->db->get();
+    }
+
+    public function modelo_listado_egresos_mes() {
+        $this->db->select("monthname(fecha_contabilidad) as mes, sum(contabilidad.total_contabilidad) as total_ingresos");
+        $this->db->from("contabilidad");
+        $this->db->join("activo_pasivo_detalle", "contabilidad.id_activo_pasivo_detalle = activo_pasivo_detalle.id_activo_pasivo_detalle");
+        $this->db->join("activo_pasivo_categoria", "activo_pasivo_categoria.id_activo_pasivo_categoria = activo_pasivo_detalle.id_activo_pasivo_categoria");
+        $this->db->join("activo_pasivo", "activo_pasivo_categoria.id_activo_pasivo = activo_pasivo.id_activo_pasivo");
+        $this->db->where("activo_pasivo.id_activo_pasivo", "2");
+        $this->db->group_by('MONTH(fecha_contabilidad)');
+        return $this->db->get();
+    }
+
     //ADM DE INSUMOS
 
     public function modelo_select_lista_insumo() {
@@ -393,6 +420,11 @@ class Modelo extends CI_Model {
         return $this->db->get()->result();
     }
 
+    public function modelo_eliminar_mensaje($id_mensaje) {
+        $this->db->where("id_mensaje", $id_mensaje);
+        return $this->db->delete("mensaje");
+    }
+
     public function modelo_insertar_mensaje($rut_usuario, $select_usuario, $titulo_mensaje, $descripcion_mensaje, $fecha_mensaje, $estado_mensaje) {
         $data = array("rut_usuario_emisor" => $rut_usuario,
             "rut_usuario_receptor" => $select_usuario,
@@ -404,21 +436,118 @@ class Modelo extends CI_Model {
     }
 
     public function modelo_listado_mensaje_entrada($rut_usuario) {
-        $this->db->select("mensaje.id_mensaje, mensaje.rut_usuario_receptor, mensaje.rut_usuario_emisor, concat(persona.nombre_persona, ' ' ,persona.apellido_persona) as receptor_nombre_completo, mensaje.titulo_mensaje, mensaje.descripcion_mensaje, mensaje.fecha_mensaje, mensaje.estado_mensaje");
+        $this->db->select("mensaje.id_mensaje, mensaje.rut_usuario_receptor, mensaje.rut_usuario_emisor, concat(persona.nombre_persona, ' ' ,persona.apellido_persona) as receptor_nombre_completo, mensaje.titulo_mensaje, mensaje.descripcion_mensaje, mensaje.fecha_mensaje");
         $this->db->from("mensaje");
         $this->db->join("usuario", "usuario.rut_usuario = mensaje.rut_usuario_emisor");
         $this->db->join("persona", "persona.rut_persona = mensaje.rut_usuario_emisor");
         $this->db->where("mensaje.rut_usuario_receptor", $rut_usuario);
         return $this->db->get();
     }
-    
+
     public function modelo_listado_mensaje_salida($rut_usuario) {
-        $this->db->select("mensaje.id_mensaje, mensaje.rut_usuario_emisor, mensaje.rut_usuario_receptor, concat(persona.nombre_persona, ' ' ,persona.apellido_persona) as receptor_nombre_completo, mensaje.titulo_mensaje, mensaje.descripcion_mensaje, mensaje.fecha_mensaje, mensaje.estado_mensaje");
+        $this->db->select("mensaje.id_mensaje, mensaje.rut_usuario_emisor, mensaje.rut_usuario_receptor, concat(persona.nombre_persona, ' ' ,persona.apellido_persona) as receptor_nombre_completo, mensaje.titulo_mensaje, mensaje.descripcion_mensaje, mensaje.fecha_mensaje");
         $this->db->from("mensaje");
         $this->db->join("usuario", "usuario.rut_usuario = mensaje.rut_usuario_receptor");
         $this->db->join("persona", "persona.rut_persona = mensaje.rut_usuario_receptor");
         $this->db->where("mensaje.rut_usuario_emisor", $rut_usuario);
         return $this->db->get();
+    }
+
+    public function modelo_comentario_mensaje($id_mensaje) {
+        $this->db->select("mensaje.id_mensaje, mensaje.descripcion_mensaje");
+        $this->db->from("mensaje");
+        $this->db->where("mensaje.id_mensaje =", $id_mensaje);
+        return $this->db->get()->result();
+    }
+
+    //ADM DE SENSOR
+
+    public function modelo_listado_sensor() {
+        $this->db->select("sensor.id_sensor, sensor.temperatura_sensor, sensor.humedad_sensor, sensor.fecha_sensor, usuario.rut_usuario, concat(persona.nombre_persona, ' ' ,persona.apellido_persona) as nombre_apellido_persona");
+        $this->db->from("sensor");
+        $this->db->join("usuario", "usuario.rut_usuario = sensor.rut_usuario");
+        $this->db->join("persona", "persona.rut_persona = usuario.rut_usuario");
+        return $this->db->get();
+    }
+
+    public function modelo_insertar_sensor($rut_usuario, $temperatura_sensor, $humedad_sensor, $fecha_sensor) {
+        $data = array("temperatura_sensor" => $temperatura_sensor,
+            "humedad_sensor" => $humedad_sensor,
+            "fecha_sensor" => $fecha_sensor,
+            "rut_usuario" => $rut_usuario);
+        return $this->db->insert("sensor", $data);
+    }
+
+    //ADM CLAVE
+
+    public function modelo_cambiar_clave($rut_usuario, $clave_usuario) {
+        $this->db->where("rut_usuario", $rut_usuario);
+        $data = array("clave_usuario" => $clave_usuario);
+        return $this->db->update("usuario", $data);
+    }
+
+    //ADM PEDIDO
+    public function modelo_listado_pedido() {
+        $this->db->select("*, concat(persona.nombre_persona,' ',persona.apellido_persona) as nombre_apellido");
+        $this->db->from("producto");
+        $this->db->join("detalle_producto_pedido", "producto.id_producto = detalle_producto_pedido.id_producto");
+        $this->db->join("pedido", "pedido.id_pedido = detalle_producto_pedido.id_pedido");
+        $this->db->join("usuario", "usuario.rut_usuario = pedido.rut_usuario");
+        $this->db->join("detalle_pedido_factura", "pedido.id_pedido = detalle_pedido_factura.id_pedido");
+        $this->db->join("factura", "factura.id_factura = detalle_pedido_factura.id_factura");
+        $this->db->join("persona", "persona.rut_persona = usuario.rut_usuario");
+        $this->db->join("folio", "folio.id_folio = factura.id_folio");
+        $this->db->join("caf", "caf.id_caf = folio.id_folio");
+        return $this->db->get();
+    }
+
+    public function modelo_select_usuario_cliente() {
+        $this->db->select("usuario.rut_usuario, persona.nombre_persona, persona.apellido_persona, 
+        perfil.nombre_perfil, perfil.id_perfil");
+        $this->db->from("usuario");
+        $this->db->join("perfil", "usuario.id_perfil = perfil.id_perfil");
+        $this->db->join("persona", "usuario.rut_usuario = persona.rut_persona");
+        $this->db->where("perfil.id_perfil = 3");
+        return $this->db->get()->result();
+    }
+
+    public function modelo_insertar_pedido($rut_usuario, $fecha_pedido) {
+        $this->db->insert("pedido", [
+            "fecha_pedido" => $fecha_pedido,
+            "estado_pedido" => 0,
+            "rut_usuario" => $rut_usuario
+        ]);
+        return $this->db->insert_id();
+    }
+
+    public function modelo_insertar_producto_pedido($tipo_pan, $id_pedido, $cantidad_pan_pedido, $total_pedido, $precio_unitario_pedido) {
+        $data = array("id_producto" => $tipo_pan,
+            "id_pedido" => $id_pedido,
+            "cantidad_pedido" => $cantidad_pan_pedido,
+            "total_pedido" => $total_pedido,
+            "precio_cliente_pedido" => $precio_unitario_pedido);
+        return $this->db->insert("detalle_producto_pedido", $data);
+    }
+
+    public function modelo_insertar_pedido_factura($id_pedido, $id_factura) {
+        $data = array("id_pedido" => $id_pedido,
+            "id_factura" => $id_factura);
+        return $this->db->insert("detalle_pedido_factura", $data);
+    }
+
+    public function modelo_insertar_pedido_factura_nuevo($id_pedido, $id_factura_asincrono) {
+        $data = array("id_pedido" => $id_pedido,
+            "id_factura" => $id_factura_asincrono);
+        return $this->db->insert("detalle_pedido_factura", $data);
+    }
+    
+    public function modelo_insertar_factura($fecha_pedido) {
+        $this->db->insert("factura", [
+            "fecha_elaboracion_factura" => $fecha_pedido,
+            "id_empresa" => 1,
+            "id_folio" => 2
+        ]);
+        return $this->db->insert_id();
     }
 
 }

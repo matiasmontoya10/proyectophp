@@ -4,17 +4,19 @@
         <div class="modal-content">
             <form id="formulario_editar_insumo">
                 <div class="card-panel black-text texto-justificado borde_card_panel">
-                    <h5 class="center-align black-text"><b>EDITAR USUARIO</b></h5>
+                    <h5 class="center-align black-text"><b>EDITAR INSUMOS</b></h5>
                     <div class="row">
                         <div class="col s12 black-text">
                             <input type="hidden" id="id_insumo_e"/>
                             <input type="hidden" id="rut_usuario_e"/>
+                            <input type="hidden" id="compra_insumo_anterior_e"/>
+                            <input type="hidden" id="gasto_insumo_anterior_e"/>
                             <p>STOCK DISPONIBLE:</p>
                             <input type="text" id="stock_insumo_e" maxlength="2" required="true" pattern="[0-9]+" readonly="true"/>
                             <p>COMPRA DE STOCK:</p>
-                            <input type="text" id="compra_insumo_e" maxlength="2" required="true" pattern="[0-9]+" class="validate" value="0"/>
+                            <input type="text" id="compra_insumo_e" maxlength="2" required="true" pattern="[0-9]+" class="validate validar_numero" value="0"/>
                             <p>GASTO DE STOCK:</p>
-                            <input type="text" id="gasto_insumo_e" maxlength="2" required="true" pattern="[0-9]+" class="validate" value="0"/>
+                            <input type="text" id="gasto_insumo_e" maxlength="2" required="true" pattern="[0-9]+" class="validate validar_numero" value="0"/>
                             <button type="submit" id="boton_editar_insumo" class="waves-effect waves-light btn teal darken-2 right">EDITAR INSUMO</button>
                             <br><br>
                         </div>
@@ -36,12 +38,12 @@
                     <label>DESCRIPCIÓN INSUMO:</label>
                 </div>
                 <div class="input-field">
-                    <input id="inicial_insumo" type="text" class="inicial_insumo" maxlength="2" required="true" pattern="[0-9]+">
+                    <input id="inicial_insumo" type="text" class="inicial_insumo validar_numero" maxlength="2" required="true" pattern="[0-9]+">
                     <label for="inicial_insumo">TOTAL UNIDADES:</label>
                 </div>
                 <div class="input-field center-align">
                     <button id="boton_agregar_contabilidad" type="submit" class="waves-effect waves-light btn-floating teal darken-2 pulse">
-                        <i class="material-icons">account_circle</i>
+                        <i class="material-icons">add</i>
                     </button>
                 </div>
             </div>
@@ -86,6 +88,10 @@
 </main>
 <script type="text/javascript">
 
+    $('.validar_numero').on('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+
     select_lista_insumo();
 
     function select_lista_insumo() {
@@ -109,7 +115,7 @@
             url: base_url + "listado_insumo",
             type: 'post'
         },
-        "iDisplayLength": 10,
+        "iDisplayLength": 3,
         "bJQueryUI": false,
         "dom": 'Bfrtip',
         "buttons": [
@@ -157,7 +163,7 @@
                     if (data == 0) {
                         return data;
                     } else {
-                        return "-" + data;
+                        return data;
                     }
                 }
             }, {targets: [10],
@@ -203,7 +209,13 @@
         var id_insumo = $(this).parent().parent().children()[0];
         var stock_insumo = $(this).parent().parent().children()[5];
         var rut_usuario = $(this).parent().parent().children()[8];
-
+        //COMPRA DE INSUMO ANTERIOR PARA NO FORZAR A LA BASE DE DATOS.
+        var compra_insumo_anterior = $(this).parent().parent().children()[3];
+        $("#compra_insumo_anterior_e").val($(compra_insumo_anterior).text());
+        //GASTO DE INSUMO ANTERIOR PARA NO FORZAR A LA BASE DE DATOS.
+        var gasto_insumo_anterior = $(this).parent().parent().children()[4];
+        $("#gasto_insumo_anterior_e").val($(gasto_insumo_anterior).text());
+        //DATOS UNICOS RECUPERADOS.
         $("#id_insumo_e").val($(id_insumo).text());
         $("#rut_usuario_e").val($(rut_usuario).text());
         $("#stock_insumo_e").val($(stock_insumo).text());
@@ -216,20 +228,30 @@
 
         var id_insumo = $("#id_insumo_e").val();
         var rut_usuario = $("#rut_usuario_e").val();
-        var stock_insumo = $("#stock_insumo_e").val();
+        var stock_insumo = parseInt($("#stock_insumo_e").val());
         var compra_insumo = $("#compra_insumo_e").val();
         var gasto_insumo = $("#gasto_insumo_e").val();
-
-        if (stock_insumo == "" || compra_insumo == "" || gasto_insumo == "") {
+        console.log(stock_insumo + " " + compra_insumo + " " + gasto_insumo);
+        //COMPRA DE INSUMO RECUPERADO DE LA TABLA PARA HACER LA SUMA INCREMENTABLE. 
+        var compra_insumo_anterior = parseInt($("#compra_insumo_anterior_e").val());
+        //GASTO DE INSUMO RECUPERADO DE LA TABLA PARA HACER LA SUMA INCREMENTABLE.
+        var gasto_insumo_anterior = parseInt($("#gasto_insumo_anterior_e").val());
+        if (compra_insumo == "" || gasto_insumo == "") {
             Materialize.toast("COMPLETE CAMPO(S) VACIO(S)", "3000");
         } else {
             if (compra_insumo >= 0 && gasto_insumo >= 0) {
-                if (stock_insumo >= gasto_insumo) {
+                //SUMATORIA DE COMPRAS DE INSUMO
+                compra_insumo_anterior = (compra_insumo_anterior + parseInt(compra_insumo));
+                gasto_insumo_anterior = (gasto_insumo_anterior + parseInt(gasto_insumo));
+                if (parseInt(stock_insumo) >= parseInt(gasto_insumo)) {
+                   //SUMATORIA / RESTA STOCK.
+                   stock_insumo = parseInt(stock_insumo) + parseInt(compra_insumo);
+                   stock_insumo = parseInt(stock_insumo) - parseInt(gasto_insumo);
                     $.ajax({
                         url: base_url + "editar_insumo",
                         type: 'post',
                         dataType: 'json',
-                        data: {id_insumo: id_insumo, compra_insumo: compra_insumo, gasto_insumo: gasto_insumo, stock_insumo: stock_insumo, rut_usuario: rut_usuario},
+                        data: {id_insumo: id_insumo, compra_insumo: compra_insumo_anterior, gasto_insumo: gasto_insumo_anterior, stock_insumo: stock_insumo, rut_usuario: rut_usuario},
                         success: function (o) {
                             Materialize.toast(o.mensaje, "3000");
                             $("#tabla_listado_insumo").DataTable().ajax.reload();

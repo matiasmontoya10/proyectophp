@@ -18,14 +18,13 @@
                 </div>
                 <div class="input-field center-align">
                     <button id="boton_agregar_repartidor_vehiculo" type="submit" class="waves-effect waves-light btn-floating teal darken-2 pulse">
-                        <i class="material-icons">account_circle</i>
+                        <i class="material-icons">add</i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
     <!-- FIN AGREGAR VEHÍCULO -->
-
 
     <!-- INICIO EDITAR VEHÍCULO -->
     <div id="modal_editar_vehiculo" class="modal">
@@ -98,7 +97,7 @@
                 </div>
                 <div class="input-field center-align">
                     <button id="boton_agregar_vehiculo" type="submit" class="waves-effect waves-light btn-floating teal darken-2 pulse">
-                        <i class="material-icons">account_circle</i>
+                        <i class="material-icons">airport_shuttle</i>
                     </button>
                 </div>
             </div>
@@ -177,7 +176,7 @@
             url: base_url + "listado_repartidor_vehiculo",
             type: 'post'
         },
-        "iDisplayLength": 5,
+        "iDisplayLength": 3,
         "bJQueryUI": false,
         "dom": 'Bfrtip',
         "buttons": [
@@ -216,7 +215,7 @@
             url: base_url + "listado_vehiculo",
             type: 'post'
         },
-        "iDisplayLength": 5,
+        "iDisplayLength": 3,
         "bJQueryUI": false,
         "dom": 'Bfrtip',
         "buttons": [

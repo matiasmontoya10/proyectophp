@@ -1,4 +1,19 @@
 <main class="fondo_main">
+    <div id="modal_comentario" class="modal">
+        <div class="modal-content">
+            <div class="card-panel borde_card_panel grey lighten-5">
+                <h5 class="center"><b>COMENTARIO DE MENSAJE</b></h5>
+                <div class="input-field">
+                    <input id="id_mensaje" type="text" readonly="true" placeholder="">
+                    <label for="id_mensaje">ID DE MENSAJE:</label>
+                </div>
+                <div class="input-field">
+                    <textarea id="comentario_mensaje" class="materialize-textarea" readonly="true" placeholder=""></textarea>
+                    <label for="comentario_mensaje">COMENTARIO:</label>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- INICIO AGREGAR MENSAJE -->
     <div id="modal_agregar_mensaje" class="modal">
         <div class="modal-content">
@@ -21,7 +36,7 @@
                 </div>
                 <div class="input-field center-align">
                     <button id="boton_agregar_mensaje" type="submit" class="waves-effect waves-light btn-floating teal darken-2 pulse">
-                        <i class="material-icons">account_circle</i>
+                        <i class="material-icons">add</i>
                     </button>
                 </div>
             </div>
@@ -31,7 +46,7 @@
     <div class="container">
         <br>
         <div class="row">
-            <div class="col s12 m12 l12">
+            <div class="col s12 m10 l10 offset-m1 offset-l1">
                 <div class="card-panel borde_card_panel">
                     <h5 class="center"><b>MENSAJERÍA</b></h5>
                     <ul class="collapsible" data-collapsible="accordion">
@@ -49,7 +64,7 @@
                                                 <th>TITULO</th>
                                                 <th>DESCRIPCION</th>
                                                 <th>FECHA MENSAJE</th>
-                                                <th>ESTADO</th>
+                                                <th>ELIMINAR</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -73,7 +88,7 @@
                                                 <th>TITULO</th>
                                                 <th>DESCRIPCION</th>
                                                 <th>FECHA MENSAJE</th>
-                                                <th>ESTADO</th>
+                                                <th>ELIMINAR</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -106,7 +121,7 @@
             type: 'post',
             data: {rut_usuario: rut_usuario_php}
         },
-        "iDisplayLength": 5,
+        "iDisplayLength": 3,
         "bJQueryUI": false,
         "dom": 'Bfrtip',
         "buttons": [
@@ -121,37 +136,26 @@
                 customize: function (doc) {
                     doc.styles.tableBodyEven.alignment = 'center';
                     doc.styles.tableBodyOdd.alignment = 'center';
-                    doc.content[2].margin = [50, 0, 50, 0];
+                    doc.content[2].margin = [80, 0, 80, 0];
+                },
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 6]
                 }
             }
         ],
-        "order": [[0, "desc"]]
-//        "columnDefs": [
-//            {targets: [1], "render": function (data, type, row, meta) {
-//                    if (row[9] == "Activo") {
-//                        return '$' + data;
-//                    } else {
-//                        return '-$' + data;
-//                    }
-//                }
-//            },
-//            {targets: [2, 3], "render": function (data, type, row, meta) {
-//                    return '$' + data;
-//                }
-//            }
-//        ],
-//        "fnRowCallback": function (nRow, aData) {
-//            if (aData[9] == "Activo") {
-//                $('td', nRow).css('background-color', '#2e7d32');
-//                $('td', nRow).css('color', '#ffffff');
-//            } else if (aData[9] == "Pasivo") {
-//                $('td', nRow).css('background-color', '#c62828');
-//                $('td', nRow).css('color', '#ffffff');
-//            }
-//        }
+        "order": [[0, "desc"]],
+        "columnDefs": [
+            {targets: [5], "render": function (data, type, row, meta) {
+                    return '<button id="boton_comentario_mensaje" class="btn btn-floating waves-effect waves-light blue" type="submit"><i class="material-icons">drafts</i></button>';
+                }
+            },
+            {targets: [7],
+                "defaultContent": '<button id="boton_eliminar_mensaje" class="btn btn-floating waves-effect waves-light red" type="submit"><i class="material-icons">delete</i></button>'
+            }
+        ]
     });
 
-$('#tabla_listado_mensaje_salida').DataTable({
+    $('#tabla_listado_mensaje_salida').DataTable({
         scrollX: true,
         "language": {
             "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"
@@ -161,7 +165,7 @@ $('#tabla_listado_mensaje_salida').DataTable({
             type: 'post',
             data: {rut_usuario: rut_usuario_php}
         },
-        "iDisplayLength": 5,
+        "iDisplayLength": 3,
         "bJQueryUI": false,
         "dom": 'Bfrtip',
         "buttons": [
@@ -176,34 +180,45 @@ $('#tabla_listado_mensaje_salida').DataTable({
                 customize: function (doc) {
                     doc.styles.tableBodyEven.alignment = 'center';
                     doc.styles.tableBodyOdd.alignment = 'center';
-                    doc.content[2].margin = [50, 0, 50, 0];
+                    doc.content[2].margin = [80, 0, 80, 0];
+                },
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 6]
                 }
             }
         ],
-        "order": [[0, "desc"]]
-//        "columnDefs": [
-//            {targets: [1], "render": function (data, type, row, meta) {
-//                    if (row[9] == "Activo") {
-//                        return '$' + data;
-//                    } else {
-//                        return '-$' + data;
-//                    }
-//                }
-//            },
-//            {targets: [2, 3], "render": function (data, type, row, meta) {
-//                    return '$' + data;
-//                }
-//            }
-//        ],
-//        "fnRowCallback": function (nRow, aData) {
-//            if (aData[9] == "Activo") {
-//                $('td', nRow).css('background-color', '#2e7d32');
-//                $('td', nRow).css('color', '#ffffff');
-//            } else if (aData[9] == "Pasivo") {
-//                $('td', nRow).css('background-color', '#c62828');
-//                $('td', nRow).css('color', '#ffffff');
-//            }
-//        }
+        "order": [[0, "desc"]],
+        "columnDefs": [
+            {targets: [5], "render": function (data, type, row, meta) {
+                    return '<button id="boton_comentario_mensaje" class="btn btn-floating waves-effect waves-light blue" type="submit"><i class="material-icons">drafts</i></button>';
+                }
+            },
+            {targets: [7],
+                "defaultContent": '<button id="boton_eliminar_mensaje" class="btn btn-floating waves-effect waves-light red" type="submit"><i class="material-icons">delete</i></button>'
+            }
+        ]
+    });
+
+    $("body").on("click", "#boton_comentario_mensaje", function (e) {
+        e.preventDefault();
+        var id_mensaje = $(this).parent().parent().children()[0];
+        var mensaje = $(id_mensaje).text();
+        $.ajax({
+            url: base_url + "comentario_mensaje",
+            type: 'post',
+            dataType: 'json',
+            data: {id_mensaje: mensaje},
+            success: function (result) {
+                $.each(result, function (i, o) {
+                    $("#id_mensaje").val(o.id_mensaje);
+                    $("#comentario_mensaje").val(o.descripcion_mensaje);
+                    $("#modal_comentario").modal('open');
+                });
+            },
+            error: function () {
+                Materialize.toast("ERROR 500", "3000");
+            }
+        });
     });
 
     select_usuario();
@@ -231,55 +246,6 @@ $('#tabla_listado_mensaje_salida').DataTable({
         });
     }
 
-    $("body").on("click", "#boton_editar_panadero", function (e) {
-        e.preventDefault();
-
-        var rut_persona = $("#rut_usuario_e").val();
-        var telefono_persona = $("#telefono_usuario_e").val();
-        var correo_persona = $("#correo_usuario_e").val();
-        var direccion_persona = $("#direccion_usuario_e").val();
-        var tipo_panadero = $("#tipo_panadero_e").val();
-        var jornada_panadaero = $("#jornada_panadero_e").val();
-        var estado_panadero = $("#estado_panadero_e").val();
-        var estado_trabajador = 0;
-
-        if (telefono_persona == "" || correo_persona == "" || direccion_persona == "") {
-            Materialize.toast("COMPLETE CAMPO(S) VACIO(S)", "3000");
-        } else {
-            $.ajax({
-                url: base_url + "editar_trabajador",
-                type: 'post',
-                dataType: 'json',
-                data: {rut_persona: rut_persona, telefono_persona: telefono_persona, correo_persona: correo_persona, direccion_persona: direccion_persona, tipo_panadero: tipo_panadero, jornada_panadero: jornada_panadaero, estado_panadero: estado_panadero, estado_trabajador: estado_trabajador},
-                success: function (o) {
-                    Materialize.toast(o.mensaje, "3000");
-                    $("#tabla_listado_panadero").DataTable().ajax.reload();
-                    $("#modal_editar_panadero").modal('close');
-                },
-                error: function () {
-                    Materialize.toast("ERROR 500", "3000");
-                }
-            });
-        }
-    });
-
-    $("body").on("click", "#boton_modal_editar_panadero", function (e) {
-        e.preventDefault();
-
-        var rut_usuario = $(this).parent().parent().children()[0];
-        var telefono_usuario = $(this).parent().parent().children()[3];
-        var correo_usuario = $(this).parent().parent().children()[4];
-        var direccion_usuario = $(this).parent().parent().children()[5];
-
-
-        $("#rut_usuario_e").val($(rut_usuario).text());
-        $("#correo_usuario_e").val($(correo_usuario).text());
-        $("#telefono_usuario_e").val($(telefono_usuario).text());
-        $("#direccion_usuario_e").val($(direccion_usuario).text());
-
-        $("#modal_editar_panadero").modal('open');
-    });
-
     $("#boton_agregar_mensaje").click(function (excepcion) {
 
         excepcion.preventDefault();
@@ -304,6 +270,8 @@ $('#tabla_listado_mensaje_salida').DataTable({
                     } else {
                         Materialize.toast(resultado.mensaje, "3000");
                         $("#modal_agregar_mensaje").modal('close');
+                        $("#tabla_listado_mensaje_entrada").DataTable().ajax.reload();
+                        $("#tabla_listado_mensaje_salida").DataTable().ajax.reload();
                     }
                 },
                 error: function () {
@@ -311,5 +279,24 @@ $('#tabla_listado_mensaje_salida').DataTable({
                 }
             });
         }
+    });
+
+    $("body").on("click", "#boton_eliminar_mensaje", function (e) {
+        e.preventDefault();
+        var id_mensaje = $(this).parent().parent().children()[0];
+        $.ajax({
+            url: base_url + 'eliminar_mensaje',
+            type: 'post',
+            dataType: 'json',
+            data: {id_mensaje: $(id_mensaje).text()},
+            success: function (resultado) {
+                Materialize.toast(resultado.mensaje, "3000");
+                $("#tabla_listado_mensaje_entrada").DataTable().ajax.reload();
+                $("#tabla_listado_mensaje_salida").DataTable().ajax.reload();
+            },
+            error: function () {
+                Materialize.toast("ERROR 500", "4000");
+            }
+        });
     });
 </script>

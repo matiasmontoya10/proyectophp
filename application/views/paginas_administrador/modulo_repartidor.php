@@ -9,7 +9,7 @@
                         <div class="col s12 black-text">
                             <input type="hidden" id="rut_usuario_e"/>
                             <p>TELEFONO:</p>
-                            <input type="text" id="telefono_usuario_e" maxlength="9" required="true" pattern="[0-9]+" class="validate"/>
+                            <input type="text" id="telefono_usuario_e" maxlength="9" required="true" pattern="[0-9]+" class="validate validar_numero"/>
                             <p>EMAIL:</p>
                             <input type="text" id="correo_usuario_e" maxlength="45" required="true" pattern="^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$" class="validate"/>
                             <p>DIRECCION:</p>
@@ -67,7 +67,7 @@
                 </div>
                 <div class="input-field">
                     <i class="material-icons prefix">phone</i>
-                    <input id="telefono_persona" type="text" class="validate" placeholder="983006194" maxlength="9" required="true" pattern="[0-9]+">
+                    <input id="telefono_persona" type="text" class="validate validar_numero" placeholder="983006194" maxlength="9" required="true" pattern="[0-9]+">
                     <label for="telefono_persona">TELEFÓNO:</label>
                 </div>
                 <div class="input-field">
@@ -114,7 +114,7 @@
     <div class="container">
         <br>
         <div class="row">
-            <div class="col s12 m8 l8 offset-m2 offset-l2">
+            <div class="col s12 m10 l10 offset-m1 offset-l1">
                 <div class="card-panel borde_card_panel">
                     <h5 class="center"><b>ADMINISTRACIÓN DE REPARTIDORES</b></h5>
                     <table id="tabla_listado_repartidor" class="centered bordered highlight nowrap cell-border table-striped">
@@ -147,6 +147,23 @@
     </div>
 </main>
 <script type="text/javascript">
+
+    $('.validar_numero').on('input', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+
+    function validar_correo(correo) {
+
+        var validacion = /[\w-\.]{2,}@([\w-]{2,}\.)*([\w-]{2,}\.)[\w-]{2,4}/;
+
+        if (validacion.test(correo)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
     $('#tabla_listado_repartidor').DataTable({
         scrollX: true,
         "language": {
@@ -156,7 +173,7 @@
             url: base_url + "listado_repartidor",
             type: 'post'
         },
-        "iDisplayLength": 10,
+        "iDisplayLength": 5,
         "bJQueryUI": false,
         "dom": 'Bfrtip',
         "buttons": [
@@ -209,20 +226,24 @@
         if (telefono_persona == "" || correo_persona == "" || direccion_persona == "") {
             Materialize.toast("COMPLETE CAMPO(S) VACIO(S)", "3000");
         } else {
-            $.ajax({
-                url: base_url + "editar_trabajador",
-                type: 'post',
-                dataType: 'json',
-                data: {rut_persona: rut_persona, telefono_persona: telefono_persona, correo_persona: correo_persona, direccion_persona: direccion_persona, licencia_repartidor: licencia_repartidor, estado_licencia_repartidor: estado_licencia_repartidor, estado_repartidor: estado_repartidor, estado_trabajador: estado_trabajador},
-                success: function (o) {
-                    Materialize.toast(o.mensaje, "3000");
-                    $("#tabla_listado_repartidor").DataTable().ajax.reload();
-                    $("#modal_editar_repartidor").modal('close');
-                },
-                error: function () {
-                    Materialize.toast("ERROR 500", "3000");
-                }
-            });
+            if (validar_correo(correo_persona)) {
+                $.ajax({
+                    url: base_url + "editar_trabajador",
+                    type: 'post',
+                    dataType: 'json',
+                    data: {rut_persona: rut_persona, telefono_persona: telefono_persona, correo_persona: correo_persona, direccion_persona: direccion_persona, licencia_repartidor: licencia_repartidor, estado_licencia_repartidor: estado_licencia_repartidor, estado_repartidor: estado_repartidor, estado_trabajador: estado_trabajador},
+                    success: function (o) {
+                        Materialize.toast(o.mensaje, "3000");
+                        $("#tabla_listado_repartidor").DataTable().ajax.reload();
+                        $("#modal_editar_repartidor").modal('close');
+                    },
+                    error: function () {
+                        Materialize.toast("ERROR 500", "3000");
+                    }
+                });
+            } else {
+                Materialize.toast("CORREO NO VALIDO", "3000");
+            }
         }
     });
 
@@ -284,26 +305,30 @@
             Materialize.toast("COMPLETE CAMPO(S) VACIO(S).", 3000);
         } else {
             if (Fn.validaRut(rut_usuario)) {
-                $.ajax({
-                    url: base_url + 'insertar_repartidor',
-                    type: 'post',
-                    dataType: 'json',
-                    data: {rut_usuario: rut_usuario, nombre_persona: nombre_persona,
-                        apellido_persona: apellido_persona, telefono_persona: telefono_persona, correo_persona: correo_persona,
-                        direccion_persona: direccion_persona, licencia_repartidor: licencia_repartidor, estado_licencia_repartidor: estado_licencia_repartidor, estado_repartidor: estado_repartidor},
-                    success: function (resultado) {
-                        if (resultado.mensaje === "0") {
-                            Materialize.toast(resultado.mensaje, "3000");
-                        } else {
-                            Materialize.toast(resultado.mensaje, "3000");
-                            $("#tabla_listado_repartidor").DataTable().ajax.reload();
-                            $("#modal_agregar_repartidor").modal('close');
+                if (validar_correo(correo_persona)) {
+                    $.ajax({
+                        url: base_url + 'insertar_repartidor',
+                        type: 'post',
+                        dataType: 'json',
+                        data: {rut_usuario: rut_usuario, nombre_persona: nombre_persona,
+                            apellido_persona: apellido_persona, telefono_persona: telefono_persona, correo_persona: correo_persona,
+                            direccion_persona: direccion_persona, licencia_repartidor: licencia_repartidor, estado_licencia_repartidor: estado_licencia_repartidor, estado_repartidor: estado_repartidor},
+                        success: function (resultado) {
+                            if (resultado.mensaje === "0") {
+                                Materialize.toast(resultado.mensaje, "3000");
+                            } else {
+                                Materialize.toast(resultado.mensaje, "3000");
+                                $("#tabla_listado_repartidor").DataTable().ajax.reload();
+                                $("#modal_agregar_repartidor").modal('close');
+                            }
+                        },
+                        error: function () {
+                            Materialize.toast("ERROR 500", "3000");
                         }
-                    },
-                    error: function () {
-                        Materialize.toast("ERROR 500", "3000");
-                    }
-                });
+                    });
+                } else {
+                    Materialize.toast("CORREO NO VALIDO", "3000");
+                }
             } else {
                 Materialize.toast("EL RUT INGRESADO NO ES VÁLIDO.", "3000");
             }

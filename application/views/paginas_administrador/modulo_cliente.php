@@ -33,10 +33,10 @@
     <div class="container">
         <br>
         <div class="row">
-            <div class="col s12 m11 l11 offset-l1 offset-m1">
+            <div class="col s12 m10 l8 offset-l2 offset-m1">
                 <div class="card-panel borde_card_panel">
-                    <h5 class="center"><b>CARTERA DE CLIENTES - DESPACHADOR</b></h5>
-                    <table id="tabla_listado_usuario" class="centered bordered highlight nowrap cell-border table-striped">
+                    <h5 class="center"><b>CARTERA DE CLIENTES</b></h5>
+                    <table id="tabla_listado_cliente" class="centered bordered highlight nowrap cell-border table-striped">
                         <thead class="teal darken-2 white-text">
                             <tr>
                                 <th>RUT</th>
@@ -45,9 +45,6 @@
                                 <th>TELEFÓNO</th>
                                 <th>CORREO</th>
                                 <th>DIRECCIÓN</th>
-                                <th>PERFIL</th>
-                                <th>ESTADO</th>
-                                <th>OPCIONES</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -60,7 +57,20 @@
     </div>
 </main>
 <script type="text/javascript">
-    $('#tabla_listado_usuario').DataTable({
+
+
+    function validar_correo(correo) {
+
+        var validacion = /[\w-\.]{2,}@([\w-]{2,}\.)*([\w-]{2,}\.)[\w-]{2,4}/;
+
+        if (validacion.test(correo)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    $('#tabla_listado_cliente').DataTable({
         scrollX: true,
         "language": {
             "url": "//cdn.datatables.net/plug-ins/1.10.15/i18n/Spanish.json"
@@ -82,7 +92,7 @@
                 pageSize: 'letter',
                 orientation: 'portrait',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6]
+                    columns: [0, 1, 2, 3, 4, 5]
                 },
                 customize: function (doc) {
                     doc.styles.tableBodyEven.alignment = 'center';
@@ -90,20 +100,20 @@
                 }
             }
         ],
-        "order": [[0, "desc"]],
-        "columnDefs": [
-            {targets: [8],
-                "defaultContent": '<button id="boton_modal_editar_usuario" class="btn btn-floating waves-effect waves-light blue" type="submit"><i class="material-icons">edit</i></button>'
-            },
-            {targets: [7], "render": function (data, type, row, meta) {
-                    if (data == "1") {
-                        return 'Activo';
-                    } else {
-                        return 'Inactivo';
-                    }
-                }
-            }
-        ]
+        "order": [[0, "desc"]]
+//        "columnDefs": [
+//            {targets: [8],
+//                "defaultContent": '<button id="boton_modal_editar_usuario" class="btn btn-floating waves-effect waves-light blue" type="submit"><i class="material-icons">edit</i></button>'
+//            },
+//            {targets: [7], "render": function (data, type, row, meta) {
+//                    if (data == "1") {
+//                        return 'Activo';
+//                    } else {
+//                        return 'Inactivo';
+//                    }
+//                }
+//            }
+//        ]
     });
 
     $("body").on("click", "#boton_editar_usuario", function (e) {
@@ -118,20 +128,24 @@
         if (correo_persona == "" || telefono_persona == "" || direccion_persona == "") {
             Materialize.toast("COMPLETE CAMPO(S) VACIO(S)", "3000");
         } else {
-            $.ajax({
-                url: base_url + "editar_persona",
-                type: 'post',
-                dataType: 'json',
-                data: {rut_persona: rut_persona, telefono_persona: telefono_persona, correo_persona: correo_persona, direccion_persona: direccion_persona, estado_usuario: estado_usuario},
-                success: function (o) {
-                    Materialize.toast(o.mensaje, "3000");
-                    $("#tabla_listado_usuario").DataTable().ajax.reload();
-                    $("#modal_editar_usuario").modal('close');
-                },
-                error: function () {
-                    Materialize.toast("ERROR 500", "3000");
-                }
-            });
+            if (validar_correo(correo_persona)) {
+                $.ajax({
+                    url: base_url + "editar_persona",
+                    type: 'post',
+                    dataType: 'json',
+                    data: {rut_persona: rut_persona, telefono_persona: telefono_persona, correo_persona: correo_persona, direccion_persona: direccion_persona, estado_usuario: estado_usuario},
+                    success: function (o) {
+                        Materialize.toast(o.mensaje, "3000");
+                        $("#tabla_listado_usuario").DataTable().ajax.reload();
+                        $("#modal_editar_usuario").modal('close');
+                    },
+                    error: function () {
+                        Materialize.toast("ERROR 500", "3000");
+                    }
+                });
+            } else {
+                Materialize.toast("CORREO NO VALIDO", "3000");
+            }
         }
     });
 
